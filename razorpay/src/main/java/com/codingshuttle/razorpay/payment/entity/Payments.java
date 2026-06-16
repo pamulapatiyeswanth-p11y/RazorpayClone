@@ -1,6 +1,6 @@
 package com.codingshuttle.razorpay.payment.entity;
 
-import com.codingshuttle.razorpay.common.enums.Money;
+import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.PaymentMethod;
 import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import jakarta.persistence.*;

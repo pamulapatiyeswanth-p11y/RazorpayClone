@@ -11,8 +11,7 @@ import com.codingshuttle.razorpay.merchant.entity.Merchant;
 import com.codingshuttle.razorpay.merchant.repository.AppUserRepository;
 import com.codingshuttle.razorpay.merchant.repository.MerchantRepository;
 import com.codingshuttle.razorpay.merchant.services.AuthService;
-import jakarta.transaction.Transactional;
-import jdk.jfr.Registered;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,7 @@ public class AuthServiceImplementation implements AuthService {
                 .email(request.email())
                 .merchantId(merchant)
                 .password(request.password())
-                .role(UserRole.MERCHANT)
+                .role(UserRole.OWNER)
                 .build();
         appUserRepository.save(appUser);
         return new MerchantResponse(merchant.getId(),

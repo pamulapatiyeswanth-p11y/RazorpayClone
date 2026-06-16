@@ -1,10 +1,17 @@
-package com.codingshuttle.razorpay.common.enums;
+package com.codingshuttle.razorpay.common.entity;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
 @Embeddable
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@EqualsAndHashCode
 public class Money {
     private int amountUnits;
     private String currency;

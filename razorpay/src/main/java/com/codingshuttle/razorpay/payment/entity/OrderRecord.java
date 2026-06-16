@@ -1,6 +1,6 @@
 package com.codingshuttle.razorpay.payment.entity;
 
-import com.codingshuttle.razorpay.common.enums.Money;
+import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,6 +36,9 @@ public class OrderRecord {
 
     @Embedded
     private Money amount;
+
+    @Column(length = 100)
+    private String receipt;
 
     @Column(nullable = false)
     @Builder.Default

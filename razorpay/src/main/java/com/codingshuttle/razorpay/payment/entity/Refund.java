@@ -1,8 +1,7 @@
 package com.codingshuttle.razorpay.payment.entity;
 
 
-import com.codingshuttle.razorpay.common.enums.Money;
-import com.codingshuttle.razorpay.common.enums.PaymentStatus;
+import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.RefundStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

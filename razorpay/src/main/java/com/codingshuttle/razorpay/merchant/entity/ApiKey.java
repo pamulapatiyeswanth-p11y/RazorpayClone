@@ -29,14 +29,18 @@ public class ApiKey {
     @Column(nullable = false, length = 200)
     private String keySecretHash;
 
-    @Column(nullable = false, length = 200)
-    private String webhookSecretHash;
+    @Column(length = 200)
+    private String previousKeySecretHash;
+
+//    @Column(nullable = false, length = 200)
+//    private String webhookSecretHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private Environment environment;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean enabled = true;
 
     private LocalDateTime lastUsedAt;
