@@ -1,12 +1,10 @@
 package com.codingshuttle.razorpay.operations.entity;
 
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import com.codingshuttle.razorpay.common.enums.WebHookEventStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -18,10 +16,11 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "Webhook_events")
-public class WebHookEvent {
+public class WebHookEvent extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

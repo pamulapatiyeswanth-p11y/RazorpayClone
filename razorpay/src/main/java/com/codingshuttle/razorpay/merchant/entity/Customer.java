@@ -1,20 +1,23 @@
 package com.codingshuttle.razorpay.merchant.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "customer")
-public class Customer {
+@Table(name = "customer",
+        indexes ={
+                @Index(name = "idx_customer_merchant_id",columnList = "merchant_id"),
+                @Index(name = "idx_customer_email",columnList = "email")})
+public class Customer extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

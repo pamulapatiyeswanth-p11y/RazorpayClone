@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.merchant.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import com.codingshuttle.razorpay.common.enums.BusinessType;
 import com.codingshuttle.razorpay.common.enums.MerchantStatus;
 import jakarta.persistence.*;
@@ -13,8 +14,11 @@ import java.util.UUID;
 @Getter
 @Entity
 @Builder
-@Table(name = "merchants")
-public class Merchant {
+@Table(name = "merchants",
+indexes = {
+        @Index(name = "idx_merchant_status", columnList = "status")
+})
+public class Merchant extends BaseEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -67,9 +71,6 @@ public class Merchant {
 
     @Column(length = 100)
     private String settlementBankBranch;
-//
-//    private LocalDateTime createdAt;
-//    private LocalDateTime updatedAt;
 //    private String createdBy;
 //    private String updatedBy;
 }

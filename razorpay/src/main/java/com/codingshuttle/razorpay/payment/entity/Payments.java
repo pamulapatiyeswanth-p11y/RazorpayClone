@@ -1,13 +1,11 @@
 package com.codingshuttle.razorpay.payment.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.PaymentMethod;
 import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -16,18 +14,23 @@ import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name = "payments")
+@Table(name = "payments",
+indexes = {
+        @Index(name = "idx_payment_order_id", columnList = "order_id"),
+        @Index(name = "idx_payment_merchant_id",columnList = "merchant_id")
+})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Payments {
+@Getter
+@Setter
+public class Payments extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "order_id", nullable = false)
-    private OrderRecord orderId;
+    private OrderRecord order;
 
     @Column(nullable = false)
     private UUID merchantId;

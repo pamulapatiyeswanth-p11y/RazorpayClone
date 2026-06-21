@@ -1,16 +1,14 @@
 package com.codingshuttle.razorpay.operations.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Cleanup;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-public class DlqEvent {
+public class DlqEvent extends BaseEntity {
     // This is just a log for DLQ. We have a separate service for DLQ in Kafka
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -9,14 +9,23 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
         </processorPath>
         <module name="razorpay" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="razorpay.main" target="25" />
+      <module name="razorpay.test" target="25" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="razorpay" options="-parameters" />
+      <module name="razorpay.main" options="-parameters" />
+      <module name="razorpay.test" options="-parameters" />
     </option>
   </component>
 </project>

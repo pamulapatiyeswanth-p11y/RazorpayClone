@@ -1,20 +1,19 @@
 package com.codingshuttle.razorpay.operations.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "settlement_payments")
-public class SettlementPayment {
+public class SettlementPayment{
     @EmbeddedId
     private SettlementPaymentId settlementPaymentId;
 

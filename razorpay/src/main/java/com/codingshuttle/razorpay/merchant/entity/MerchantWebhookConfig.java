@@ -1,19 +1,21 @@
 package com.codingshuttle.razorpay.merchant.entity;
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "merchant_webhook_config")
-public class MerchantWebhookConfig {
+@Table(name = "merchant_webhook_config",
+indexes = {
+        @Index(name = "idx_webhook_merchant_id",columnList = "merchant_id,enabled")
+})
+public class MerchantWebhookConfig extends BaseEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;

@@ -1,12 +1,10 @@
 package com.codingshuttle.razorpay.payment.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -17,10 +15,16 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "order_record")
-public class OrderRecord {
+@Table(name = "order_record",
+indexes = {
+        @Index(name = "idx_order_record_id_merchant_id",columnList = "id,merchant_id"),
+        @Index(name = "idx_order_record_merchant_id",columnList = "merchant_id")
+
+})
+public class OrderRecord extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

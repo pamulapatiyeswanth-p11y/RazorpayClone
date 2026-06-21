@@ -1,13 +1,11 @@
 package com.codingshuttle.razorpay.operations.entity;
 
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.SettlementStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,10 +13,11 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "settlements")
-public class Settlement {
+public class Settlement extends BaseEntity {
         @Id
         @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
         private UUID settlementId;

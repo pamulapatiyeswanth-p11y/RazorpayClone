@@ -1,12 +1,10 @@
 package com.codingshuttle.razorpay.payment.entity;
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import com.codingshuttle.razorpay.common.enums.Actor;
 import com.codingshuttle.razorpay.common.enums.PaymentEvent;
 import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,10 +12,14 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "payment_transition_log")
-public class PaymentTransitionLog {
+@Table(name = "payment_transition_log",
+indexes = {
+        @Index(name="idx_payment_log_payment_id",columnList = "payment_id")
+})
+public class PaymentTransitionLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

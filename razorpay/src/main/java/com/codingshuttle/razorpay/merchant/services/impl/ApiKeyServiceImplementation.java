@@ -7,6 +7,7 @@ import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyResponse;
 import com.codingshuttle.razorpay.merchant.dto.response.CreateApiKeyResponse;
 import com.codingshuttle.razorpay.merchant.entity.ApiKey;
 import com.codingshuttle.razorpay.merchant.entity.Merchant;
+import com.codingshuttle.razorpay.merchant.mapper.ApiKeyMapper;
 import com.codingshuttle.razorpay.merchant.repository.ApiKeyRepository;
 import com.codingshuttle.razorpay.merchant.repository.MerchantRepository;
 import com.codingshuttle.razorpay.merchant.services.ApiKeyService;
@@ -27,6 +28,7 @@ import java.util.UUID;
 public class ApiKeyServiceImplementation implements ApiKeyService {
     private final MerchantRepository merchantRepository;
     private final ApiKeyRepository apiKeyRepository;
+    private final ApiKeyMapper apiKeyMapper;
     @Override
     @Transactional
     public CreateApiKeyResponse create(UUID merchantId, CreateApiKeyRequest request) {
@@ -44,19 +46,20 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
                 .merchantId(merchant)
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
-
-        return new CreateApiKeyResponse(apiKey.getId(),keyId,rawSecret,request.environment());
+        return apiKeyMapper.toCreateResponse(apiKey);
+//        return new CreateApiKeyResponse(apiKey.getId(),keyId,rawSecret,request.environment());
     }
 
     @Override
     public List<ApiKeyResponse> listByMerchant(UUID merchantId) {
        List<ApiKey> apiKeyList =  apiKeyRepository.findByMerchantId_Id(merchantId);
-        return apiKeyList.stream().map(apiKey -> new ApiKeyResponse(apiKey.getId(),
-                apiKey.getKeyId(),
-                apiKey.getEnvironment(),
-                apiKey.isEnabled(),
-                apiKey.getLastUsedAt(),
-                null)).toList();
+       return apiKeyMapper.toApiKeyResponseList(apiKeyList);
+//        return apiKeyList.stream().map(apiKey -> new ApiKeyResponse(apiKey.getId(),
+//                apiKey.getKeyId(),
+//                apiKey.getEnvironment(),
+//                apiKey.isEnabled(),
+//                apiKey.getLastUsedAt(),
+//                null)).toList();
     }
 
     @Override
@@ -74,12 +77,17 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
     public CreateApiKeyResponse rotateKey(UUID merchantId, UUID keyId) {
         ApiKey apiKey = apiKeyRepository.findByIdAndMerchantId_Id(keyId,merchantId)
                 .orElseThrow(()-> new ResourceNotFoundException("ApiKey",keyId));
+        if(!apiKey.isEnabled()){
+            throw new RuntimeException("Cannot rotate a disabled key.");
+        }
+
         String newRawSecret = RandomizerUtil.randomBase64(40);
         apiKey.setPreviousKeySecretHash(apiKey.getKeySecretHash());
         apiKey.setKeySecretHash(newRawSecret); // Todo: Encode the raw secret with BcryptPasswordEncoder
         apiKey.setRotatedAt(LocalDateTime.now());
         apiKey.setGracePeriodExpiryAt(LocalDateTime.now().plusHours(24));
         apiKey = apiKeyRepository.save(apiKey);
+
         return new CreateApiKeyResponse(apiKey.getId(),apiKey.getKeyId(),newRawSecret,apiKey.getEnvironment());
     }
 
