@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "settlement_payments")
-public class SettlementPayment{
+public class SettlementPayment extends BaseEntity{
     @EmbeddedId
     private SettlementPaymentId settlementPaymentId;
 

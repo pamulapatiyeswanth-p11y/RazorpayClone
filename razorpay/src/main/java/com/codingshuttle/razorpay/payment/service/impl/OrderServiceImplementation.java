@@ -103,7 +103,7 @@ public class OrderServiceImplementation implements OrderService {
 
     //-------------Helper Methods-------------------------------------------------------------------
     private OrderRecord findOrderByIdAndMerchantId(UUID merchantId, UUID orderId){
-       return orderRecordRepository.findByIdAndMerchantId(merchantId,orderId)
+       return orderRecordRepository.findByIdAndMerchantId(orderId,merchantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order",orderId));
 
     }
