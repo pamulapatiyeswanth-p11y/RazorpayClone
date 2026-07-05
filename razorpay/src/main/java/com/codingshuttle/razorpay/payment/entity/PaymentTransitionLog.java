@@ -25,7 +25,7 @@ public class PaymentTransitionLog extends BaseEntity {
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "payment_id", nullable = false)
-    private Payments paymentId;
+    private Payments payment;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

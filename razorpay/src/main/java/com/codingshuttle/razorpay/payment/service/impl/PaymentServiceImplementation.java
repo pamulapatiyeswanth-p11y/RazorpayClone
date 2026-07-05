@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.payment.service.impl;
 import com.codingshuttle.razorpay.common.enums.OrderStatus;
+import com.codingshuttle.razorpay.common.enums.PaymentEvent;
 import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import com.codingshuttle.razorpay.common.exception.BusinessRuleViolationException;
 import com.codingshuttle.razorpay.common.exception.ResourceNotFoundException;
@@ -14,12 +15,14 @@ import com.codingshuttle.razorpay.payment.mapper.PaymentMapper;
 import com.codingshuttle.razorpay.payment.repository.OrderRecordRepository;
 import com.codingshuttle.razorpay.payment.repository.PaymentRepository;
 import com.codingshuttle.razorpay.payment.service.PaymentService;
+import com.codingshuttle.razorpay.payment.statemachine.PaymentTransitionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -31,6 +34,7 @@ public class PaymentServiceImplementation implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentGatewayRouter paymentGatewayRouter;
     private final PaymentMapper paymentMapper;
+    private final PaymentTransitionService paymentTransitionService;
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ) // if someone tries to read same thing multiple times, it will return the same
@@ -61,16 +65,52 @@ public class PaymentServiceImplementation implements PaymentService {
                 request.paymentMethod(),
                 request.methodDetails());
 
-       PaymentResult result =paymentGatewayRouter.initiate(paymentRequest);
+       PaymentResult result = paymentGatewayRouter.initiate(paymentRequest);
         switch (result) {
-            case PaymentResult.Pending pending -> payment.setProcessorReference(pending.paymentRegistrationReference());
+            case PaymentResult.Pending pending ->
+                    payment.setProcessorReference(pending.paymentRegistrationReference());
             case PaymentResult.Failure failure -> {
-                payment.setStatus(PaymentStatus.FAILED);
+//                payment.setStatus(PaymentStatus.FAILED);
+                paymentTransitionService.apply(payment, PaymentEvent.AUTHORIZE_FAILED);
                 payment.setErrorCode(failure.errorCode());
                 payment.setErrorDescription(failure.errorDescription());
-            } }
+            }
+            case PaymentResult.Success success -> {
+//                payment.setStatus(PaymentStatus.SETTLED);
+                paymentTransitionService.apply(payment, PaymentEvent.SETTLE);
+                payment.setBankReference(success.bankReference());
+            }
+        }
         payment = paymentRepository.save(payment); // save payment
         orderRepository.save(order); // save order
         return paymentMapper.toResponse(payment);
+    }
+
+    @Override
+    public PaymentResponse capture(UUID merchantId, UUID paymentId) {
+        Payments payment = paymentRepository.findByIdAndMerchantId(paymentId,merchantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment", paymentId));
+        paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_REQUEST);
+        PaymentResult result =  paymentGatewayRouter.capture(payment.getPaymentMethod(),paymentId);
+        if(result instanceof PaymentResult.Success success){
+            paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_SUCCESS);
+            payment.setBankReference(success.bankReference());
+            payment.setCapturedAt(LocalDateTime.now());
+            log.info("Payment capture successful for payment Id: {}",paymentId);
+
+        }
+        else if(result instanceof PaymentResult.Failure failure){
+            paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_FAILED);
+            payment.setErrorCode(failure.errorCode());
+            payment.setErrorDescription(failure.errorDescription());
+            log.warn("Payment capture failed for payment Id: {} with error code: {} and description: {}",paymentId,failure.errorCode(),failure.errorDescription());
+
+        }
+        else{
+            throw new BusinessRuleViolationException("PAYMENT_CAPTURE_FAILED","Payment capture failed for payment Id: "+paymentId);
+        }
+        payment = paymentRepository.save(payment);
+        return paymentMapper.toResponse(payment);
+
     }
 }

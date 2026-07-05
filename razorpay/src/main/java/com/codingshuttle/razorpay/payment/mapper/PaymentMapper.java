@@ -23,8 +23,8 @@ public interface PaymentMapper {
     Payments toEntity(PaymentResponse paymentResponse);
 
     //Lists
-    @Mapping(source = "order.id",target = "orderId")
-    @Mapping(source = "paymentMethodDetails", target = "methodDetails")
-    @Mapping(source = "status", target = "paymentStatus")
+//    @Mapping(source = "order.id",target = "orderId")
+//    @Mapping(source = "paymentMethodDetails", target = "methodDetails")
+//    @Mapping(source = "status", target = "paymentStatus")
     List<PaymentResponse> toResponseList(List<Payments> paymentsList);
 }
