@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.vault.entity;
 import com.codingshuttle.razorpay.common.entity.BaseEntity;
+import com.codingshuttle.razorpay.common.enums.CardBrand;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "vault_card")
 
 public class VaultCard extends BaseEntity {
@@ -23,7 +25,7 @@ public class VaultCard extends BaseEntity {
     private String lastFourDigits;
 
     @Column(nullable = false)
-    private String brand;
+    private CardBrand brand;
 
     @Column(nullable = false,length = 6)
     private String bin; // Bank Identification Number, first 6 digits of the card, can be used for card type and issuer identification

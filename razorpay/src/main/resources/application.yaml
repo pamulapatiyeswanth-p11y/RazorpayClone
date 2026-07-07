@@ -13,3 +13,5 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+vault:
+  master-key : wqt99632962396yo9goe464ey5wy32692966263267272363

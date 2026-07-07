@@ -11,6 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "card_token")
 public class CardToken extends BaseEntity {
@@ -21,7 +22,7 @@ public class CardToken extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "vault_card_id", nullable = false)
-    private VaultCard vaultCardId;
+    private VaultCard vaultCard;
 
     @Column(nullable = false)
     private UUID customerId;

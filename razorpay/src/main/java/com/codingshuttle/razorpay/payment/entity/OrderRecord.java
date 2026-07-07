@@ -42,7 +42,7 @@ public class OrderRecord extends BaseEntity {
     private Money amount;
 
     @Column(length = 100)
-    private String receipt;
+    private String receipt;// Contains the orderId coming from merchant which is optional depending on merchant
 
     @Column(nullable = false)
     @Builder.Default
