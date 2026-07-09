@@ -19,7 +19,7 @@ public class NetBankingPaymentProcessor implements PaymentProcessor {
                     "Bank rejected the transaction registration");
         }
         String processorReference = "NET_BANKING_PROCESSOR" + RandomizerUtil.randomBase64(16); // Unique Id for transaction to avoid duplicate transaction registration
-        String redirectReference = "https://BankRedirect.com/" + processorReference; // To redirect the user to the bank for authentication and authorization
-        return new PaymentProcessorResponse.Success(processorReference, redirectReference);
+//        String redirectReference = "https://BankRedirect.com/" + processorReference; // To redirect the user to the bank for authentication and authorization
+        return new PaymentProcessorResponse.Pending(processorReference);
     }
 }

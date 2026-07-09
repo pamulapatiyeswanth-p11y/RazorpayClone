@@ -56,7 +56,7 @@ public class PaymentServiceImplementation implements PaymentService {
                 .paymentMethodDetails(request.methodDetails())
                 .build();
 
-        paymentRepository.save(payment);
+        paymentRepository.save(payment);// Payment created for the order
         PaymentRequest paymentRequest = new PaymentRequest(  // Required for passing request to initiate method of PaymentGatewayRouter
                 payment.getId(),
                 request.orderId(),
@@ -77,12 +77,13 @@ public class PaymentServiceImplementation implements PaymentService {
             }
             case PaymentResult.Success success -> {
 //                payment.setStatus(PaymentStatus.SETTLED);
-                paymentTransitionService.apply(payment, PaymentEvent.SETTLE);
-                payment.setBankReference(success.bankReference());
+                  log.warn("invalid state");
+                  return null;
             }
         }
         payment = paymentRepository.save(payment); // save payment
         orderRepository.save(order); // save order
+        // ToDo: Send an outbox (Kafka event)
         return paymentMapper.toResponse(payment);
     }
 
@@ -97,6 +98,7 @@ public class PaymentServiceImplementation implements PaymentService {
             payment.setBankReference(success.bankReference());
             payment.setCapturedAt(LocalDateTime.now());
             log.info("Payment capture successful for payment Id: {}",paymentId);
+            log.debug("Capture successful, payment status updated to: {}",payment.getStatus());
 
         }
         else if(result instanceof PaymentResult.Failure failure){
@@ -104,6 +106,7 @@ public class PaymentServiceImplementation implements PaymentService {
             payment.setErrorCode(failure.errorCode());
             payment.setErrorDescription(failure.errorDescription());
             log.warn("Payment capture failed for payment Id: {} with error code: {} and description: {}",paymentId,failure.errorCode(),failure.errorDescription());
+            log.debug("Capture failed, payment status is: {}",payment.getStatus());
 
         }
         else{

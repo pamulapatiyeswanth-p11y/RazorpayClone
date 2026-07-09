@@ -19,7 +19,7 @@ public class UpiPaymentProcessor implements PaymentProcessor {
                     "Bank rejected the transaction registration");
         }
         String processorReference = "UPI_PROCESSOR" + RandomizerUtil.randomBase64(16); // Unique Id for transaction to avoid duplicate transaction registration
-        String bankReference = "BANK_REF" + RandomizerUtil.randomBase64(16);
-        return new PaymentProcessorResponse.Success(processorReference, bankReference);
+        //In UPI payments the bank reference will come from NPCI which will redirect the user to appropriate site to continue payment.
+        return new PaymentProcessorResponse.Pending(processorReference);
     }
 }
