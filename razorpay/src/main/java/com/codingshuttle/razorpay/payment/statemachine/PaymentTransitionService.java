@@ -18,11 +18,12 @@ public class PaymentTransitionService {
     private final PaymentStateMachine paymentStateMachine;
 
     public PaymentStatus apply(Payments payment, PaymentEvent event){
+        PaymentStatus fromStatus = payment.getStatus();
         PaymentStatus nextStatus = paymentStateMachine.transition(payment.getStatus(), event);
         payment.setStatus(nextStatus);
         PaymentTransitionLog transitionLog = PaymentTransitionLog.builder()
                 .payment(payment)
-                .fromStatus(payment.getStatus())
+                .fromStatus(fromStatus)
                 .toStatus(nextStatus)
                 .actor(Actor.SYSTEM)// ToDo: get the actor from the merchant security context
                 .eventType(event)

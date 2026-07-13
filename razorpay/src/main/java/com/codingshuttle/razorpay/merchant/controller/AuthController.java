@@ -1,7 +1,9 @@
 package com.codingshuttle.razorpay.merchant.controller;
 
 
+import com.codingshuttle.razorpay.merchant.dto.request.LoginRequest;
 import com.codingshuttle.razorpay.merchant.dto.request.MerchantSignUpRequest;
+import com.codingshuttle.razorpay.merchant.dto.response.LoginResponse;
 import com.codingshuttle.razorpay.merchant.dto.response.MerchantResponse;
 import com.codingshuttle.razorpay.merchant.services.AuthService;
 import jakarta.validation.Valid;
@@ -25,5 +27,13 @@ public class AuthController {
     {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signUp(request));
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody @Valid LoginRequest request)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.login(request));
+    }
+
 
 }

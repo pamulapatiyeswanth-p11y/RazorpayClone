@@ -72,7 +72,7 @@ public class VaultServiceImpl implements VaultService {
 
     @Override
     public PaymentProcessorResponse charge(String token,UUID paymentId , Money amount, Map<String, Object> methodDetails) {
-        CardToken cardToken = cardTokenRepository.findByCardTokenAndRevokedAtIsNull(token)
+        CardToken cardToken = cardTokenRepository.findByTokenAndRevokedAtIsNull(token)
                 .orElseThrow(() -> new ResourceNotFoundException("CARD_TOKEN", token));
         VaultCard vaultCard = cardToken.getVaultCard();
         byte[] panBytes = null;

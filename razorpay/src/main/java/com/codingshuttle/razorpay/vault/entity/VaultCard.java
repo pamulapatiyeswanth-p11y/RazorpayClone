@@ -25,6 +25,7 @@ public class VaultCard extends BaseEntity {
     private String lastFourDigits;
 
     @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private CardBrand brand;
 
     @Column(nullable = false,length = 6)

@@ -36,7 +36,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
             return new PaymentProcessorResponse.Failure("INCORRECT_CVV",
                     "Incorrect CVV provided");
         }
-        String processorReference = "NET_BANKING_PROCESSOR" + RandomizerUtil.randomBase64(16); // Unique Id for transaction to avoid duplicate transaction registration
+        String processorReference = "CARD_PROCESSOR" + RandomizerUtil.randomBase64(16); // Unique Id for transaction to avoid duplicate transaction registration
 
         return new PaymentProcessorResponse.Pending(processorReference);
     }

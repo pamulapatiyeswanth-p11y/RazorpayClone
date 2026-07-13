@@ -18,6 +18,7 @@ import com.codingshuttle.razorpay.payment.service.PaymentService;
 import com.codingshuttle.razorpay.payment.statemachine.PaymentTransitionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,12 +51,16 @@ public class PaymentServiceImplementation implements PaymentService {
 
         Payments payment = Payments.builder()
                 .order(order)
+                .merchantId(merchantId)
                 .amount(order.getAmount())
                 .status(PaymentStatus.CREATED)
+                .idempotencyKey(UUID.randomUUID().toString())
                 .paymentMethod(request.paymentMethod())
                 .paymentMethodDetails(request.methodDetails())
                 .build();
-
+        paymentRepository.save(payment);
+        //Update the payment status to Authorizing
+        paymentTransitionService.apply(payment,PaymentEvent.AUTHORIZE_ATTEMPT);// Transition would be - Created -> Authorizing -> Authorized
         paymentRepository.save(payment);// Payment created for the order
         PaymentRequest paymentRequest = new PaymentRequest(  // Required for passing request to initiate method of PaymentGatewayRouter
                 payment.getId(),
@@ -67,6 +72,7 @@ public class PaymentServiceImplementation implements PaymentService {
 
        PaymentResult result = paymentGatewayRouter.initiate(paymentRequest);
         switch (result) {
+            //Payment would be updated to Authorized when bank returns success in response
             case PaymentResult.Pending pending ->
                     payment.setProcessorReference(pending.paymentRegistrationReference());
             case PaymentResult.Failure failure -> {
@@ -88,6 +94,7 @@ public class PaymentServiceImplementation implements PaymentService {
     }
 
     @Override
+    @Transactional
     public PaymentResponse capture(UUID merchantId, UUID paymentId) {
         Payments payment = paymentRepository.findByIdAndMerchantId(paymentId,merchantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment", paymentId));
@@ -115,5 +122,43 @@ public class PaymentServiceImplementation implements PaymentService {
         payment = paymentRepository.save(payment);
         return paymentMapper.toResponse(payment);
 
+    }
+
+    @Override
+    @Transactional
+    public void resolveAuthorization(UUID paymentId, boolean approve, String bankRef, String simBankError, String simulatedBankErrorMessage) {
+        Payments payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment",paymentId));
+        if(payment.getStatus() != PaymentStatus.AUTHORIZING){
+            log.warn("Payment is not in Authorizing stage, paymentId:{},status: {}",paymentId,payment.getStatus());
+            return;
+        }
+        OrderRecord orderRecord = payment.getOrder();
+        if(approve){
+            paymentTransitionService.apply(payment,PaymentEvent.AUTHORIZE_SUCCESS);
+            payment.setBankReference(bankRef);
+            payment.setAuthorizedAt(LocalDateTime.now());
+            //Auto capture
+            paymentTransitionService.apply(payment, PaymentEvent.CAPTURE_REQUEST);
+            PaymentResult captureResult = paymentGatewayRouter.capture(payment.getPaymentMethod(),paymentId);
+            if(captureResult instanceof PaymentResult.Success success){
+                paymentTransitionService.apply(payment,PaymentEvent.CAPTURE_SUCCESS);
+                payment.setCapturedAt(LocalDateTime.now());
+                orderRecord.setStatus(OrderStatus.PAID);
+            }
+            else if(captureResult instanceof PaymentResult.Failure failure ){
+               paymentTransitionService.apply(payment,PaymentEvent.CAPTURE_FAILED);
+               payment.setErrorCode(failure.errorCode());
+               payment.setErrorDescription(failure.errorDescription());
+            }
+        }
+        else {
+            paymentTransitionService.apply(payment,PaymentEvent.AUTHORIZE_FAILED);
+            payment.setErrorCode(simBankError);
+            payment.setErrorDescription(simulatedBankErrorMessage);
+        }
+
+        paymentRepository.save(payment);
+        orderRepository.save(orderRecord);
     }
 }

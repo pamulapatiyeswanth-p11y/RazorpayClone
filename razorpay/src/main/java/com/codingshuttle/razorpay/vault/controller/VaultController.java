@@ -20,7 +20,7 @@ import java.util.UUID;
 public class VaultController {
 
     private final VaultService vaultService;
-    private final UUID merchantId = UUID.fromString("5cb45f97-0f80-4904-901d-46a763ad59ea");// Todo: replace it with merchant context
+    private final UUID merchantId = UUID.fromString("dc74a1f1-d2c4-4a09-b37a-48be52e9b0f1");// Todo: replace it with merchant context
 
 
     @PostMapping("/tokenize")

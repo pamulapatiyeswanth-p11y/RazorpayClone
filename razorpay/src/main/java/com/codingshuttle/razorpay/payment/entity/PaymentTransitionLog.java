@@ -17,14 +17,14 @@ import java.util.UUID;
 @Entity
 @Table(name = "payment_transition_log",
 indexes = {
-        @Index(name="idx_payment_log_payment_id",columnList = "payment_id")
+        @Index(name="idx_payment_log_payment_id",columnList = "payments_id")
 })
 public class PaymentTransitionLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "payments_id", nullable = false)
     private Payments payment;
 
     @Column(nullable = false)

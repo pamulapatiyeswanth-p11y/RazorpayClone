@@ -28,7 +28,7 @@ public class VaultEncryptionConfig {
 
     @Bean
     public BytesEncryptor dekEncryptor(){
-        byte[] masterKeyBytes = Base64.getDecoder().decode(masterKey);
+        byte[] masterKeyBytes = Base64.getDecoder().decode(masterKey);// Converts string to array of bytes
         SecretKeySpec masterDekKey = new SecretKeySpec(masterKeyBytes,"AES");
         return new AesBytesEncryptor(masterDekKey,
                 KeyGenerators.secureRandom(12),

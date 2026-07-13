@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class RandomizerUtil {
 
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom(); // Thread safe
     public static String randomBase64(int length){
         byte[] buf = new byte[length];
         SECURE_RANDOM.nextBytes(buf); // Fills the array with random values ex: [-12, 55, 101, -8, 44, ...]

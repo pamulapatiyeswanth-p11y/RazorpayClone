@@ -14,4 +14,24 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 vault:
-  master-key : wqt99632962396yo9goe464ey5wy32692966263267272363
+  master-key : wqt99632962396yo9goe464ey5wy3269
+
+payment:
+  simulator:
+    poll-interval-ms: 5000
+    chaos-mode: NORMAL
+    method:
+      CARD:
+        min-delay-seconds: 2
+        max-delay-seconds: 6
+        success-rate: 90
+      UPI:
+        min-delay-seconds: 1
+        max-delay-seconds: 3
+        success-rate: 95
+      NET_BANKING:
+        min-delay-seconds: 4
+        max-delay-seconds: 10
+        success-rate: 80
+jwt:
+  secret-key: dont-use-in-prod-39weiwi29492iwekmwi3944
