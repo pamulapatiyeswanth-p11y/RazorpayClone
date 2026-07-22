@@ -42,4 +42,23 @@ public class JwtUtils {
                 .getPayload();
 
     }
+
+    public String extractRole(Claims claims){
+        return claims.get("role",String.class);
+    }
+
+    public String extractMerchantId(Claims claims){
+        return claims.get("merchantId", String.class);
+    }
+
+    public boolean isTokenExpired(Claims claims){
+        return claims.getExpiration().toInstant().isBefore(Instant.now());
+    }
+
+
+
+
+
+
+
 }

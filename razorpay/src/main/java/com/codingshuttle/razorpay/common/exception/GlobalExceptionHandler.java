@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,5 +51,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.of("INVALID_CREDENTIALS", ex.getMessage(), LocalDateTime.now()));
     }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleGenericException(RuntimeException ex){
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .body(ErrorResponse.of("HANDLER_EXCEPTION", ex.getMessage(),LocalDateTime.now()));
+//    }
 
     }

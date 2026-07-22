@@ -11,6 +11,7 @@ import com.codingshuttle.razorpay.merchant.mapper.ApiKeyMapper;
 import com.codingshuttle.razorpay.merchant.repository.ApiKeyRepository;
 import com.codingshuttle.razorpay.merchant.repository.MerchantRepository;
 import com.codingshuttle.razorpay.merchant.services.ApiKeyService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,25 +30,26 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
     private final MerchantRepository merchantRepository;
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyMapper apiKeyMapper;
+    private final PasswordEncoder passwordEncoder;
     @Override
     @Transactional
+
     public CreateApiKeyResponse create(UUID merchantId, CreateApiKeyRequest request) {
         Merchant merchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Merchant", merchantId));
 
         String keyId = "rzp_"+request.environment().name().toLowerCase()+"_"+ RandomizerUtil.randomBase64(24);
         log.info("KeyId: {}",keyId);
-        String rawSecret = RandomizerUtil.randomBase64(40);// Todo: Encode the raw secret with BcryptPasswordEncoder
+        String rawSecret = RandomizerUtil.randomBase64(40);
         log.info("Raw Secret: {}",rawSecret);
         ApiKey apiKey = ApiKey.builder()
                 .keyId(keyId)
-                .keySecretHash(rawSecret)
+                .keySecretHash(passwordEncoder.encode(rawSecret))
                 .environment(request.environment())
                 .merchantId(merchant)
                 .build();
         apiKey = apiKeyRepository.save(apiKey);
-        return apiKeyMapper.toCreateResponse(apiKey);
-//        return new CreateApiKeyResponse(apiKey.getId(),keyId,rawSecret,request.environment());
+        return new CreateApiKeyResponse(apiKey.getId(),apiKey.getKeyId(),rawSecret,apiKey.getEnvironment());
     }
 
     @Override
@@ -83,7 +85,7 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
 
         String newRawSecret = RandomizerUtil.randomBase64(40);
         apiKey.setPreviousKeySecretHash(apiKey.getKeySecretHash());
-        apiKey.setKeySecretHash(newRawSecret); // Todo: Encode the raw secret with BcryptPasswordEncoder
+        apiKey.setKeySecretHash(passwordEncoder.encode(newRawSecret));
         apiKey.setRotatedAt(LocalDateTime.now());
         apiKey.setGracePeriodExpiryAt(LocalDateTime.now().plusHours(24));
         apiKey = apiKeyRepository.save(apiKey);

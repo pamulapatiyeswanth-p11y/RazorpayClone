@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.payment.controller;
 
+import com.codingshuttle.razorpay.merchant.security.MerchantContext;
 import com.codingshuttle.razorpay.payment.dto.request.PaymentInitRequest;
 import com.codingshuttle.razorpay.payment.dto.response.PaymentResponse;
 import com.codingshuttle.razorpay.payment.service.PaymentService;
@@ -19,16 +20,17 @@ import java.util.UUID;
 @RequestMapping("v1/payments")
 public class PaymentController {
     private final PaymentService paymentService;
-    UUID merchantId = UUID.fromString("dc74a1f1-d2c4-4a09-b37a-48be52e9b0f1");// Todo: replace it with merchant context
+    private final MerchantContext merchantContext;
+//    UUID merchantId = UUID.fromString("dc74a1f1-d2c4-4a09-b37a-48be52e9b0f1");// Todo: replace it with merchant context
     @PostMapping
     public ResponseEntity<PaymentResponse> initiatePayment(@Valid @RequestBody PaymentInitRequest request){
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(paymentService.initiatePayment(merchantId,request));
+                .body(paymentService.initiatePayment(merchantContext.getMerchantId(),request));
     }
 
     @PostMapping("/{paymentId}/capture")
     public ResponseEntity<PaymentResponse> capture(@PathVariable @NotNull UUID paymentId){
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(paymentService.capture(merchantId,paymentId));
+                .body(paymentService.capture(merchantContext.getMerchantId(),paymentId));
     }
 }

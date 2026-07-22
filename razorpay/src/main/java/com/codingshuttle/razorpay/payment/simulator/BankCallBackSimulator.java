@@ -28,7 +28,7 @@ public class BankCallBackSimulator {
     private final SimulatorConfig simulatorConfig;
     private final PaymentService paymentService;
 
-    @Scheduled(fixedDelayString = "${payment.simulator.poll-interval-ms:5000}")
+//    @Scheduled(fixedDelayString = "${payment.simulator.poll-interval-ms:5000}")
     public void processCallBack(){
         LocalDateTime globalWindow = LocalDateTime.now().minusSeconds(1); // Need check all rows until a second ago
         //Get all payment rows with payment status as Authorizing created until a second ago

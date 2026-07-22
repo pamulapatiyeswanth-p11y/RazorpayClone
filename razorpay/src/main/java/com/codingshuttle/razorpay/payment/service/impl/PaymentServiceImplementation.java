@@ -54,7 +54,7 @@ public class PaymentServiceImplementation implements PaymentService {
                 .merchantId(merchantId)
                 .amount(order.getAmount())
                 .status(PaymentStatus.CREATED)
-                .idempotencyKey(UUID.randomUUID().toString())
+                .idempotencyKey(UUID.randomUUID().toString()) // Todo: idempotency
                 .paymentMethod(request.paymentMethod())
                 .paymentMethodDetails(request.methodDetails())
                 .build();
