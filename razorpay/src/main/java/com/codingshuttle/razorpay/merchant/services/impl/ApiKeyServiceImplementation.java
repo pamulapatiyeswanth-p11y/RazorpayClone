@@ -2,6 +2,7 @@ package com.codingshuttle.razorpay.merchant.services.impl;
 
 import com.codingshuttle.razorpay.common.exception.ResourceNotFoundException;
 import com.codingshuttle.razorpay.common.util.RandomizerUtil;
+import com.codingshuttle.razorpay.merchant.cache.ApiKeyCache;
 import com.codingshuttle.razorpay.merchant.dto.request.CreateApiKeyRequest;
 import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyResponse;
 import com.codingshuttle.razorpay.merchant.dto.response.CreateApiKeyResponse;
@@ -31,6 +32,7 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyMapper apiKeyMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ApiKeyCache apiKeyCache;
     @Override
     @Transactional
 
@@ -71,6 +73,7 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
                 .filter(key -> key.getMerchantId().getId().equals(merchantId))
                 .orElseThrow(()-> new ResourceNotFoundException("ApiKey",keyId));
         apiKey.setEnabled(false);
+        apiKeyCache.evict(apiKey.getKeyId());
 //        apiKeyRepository.save(apiKey);
     }
 
@@ -89,6 +92,7 @@ public class ApiKeyServiceImplementation implements ApiKeyService {
         apiKey.setRotatedAt(LocalDateTime.now());
         apiKey.setGracePeriodExpiryAt(LocalDateTime.now().plusHours(24));
         apiKey = apiKeyRepository.save(apiKey);
+        apiKeyCache.evict(apiKey.getKeyId());
 
         return new CreateApiKeyResponse(apiKey.getId(),apiKey.getKeyId(),newRawSecret,apiKey.getEnvironment());
     }
