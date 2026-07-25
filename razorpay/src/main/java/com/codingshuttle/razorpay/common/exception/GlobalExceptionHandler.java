@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,4 +59,14 @@ public class GlobalExceptionHandler {
 //                .body(ErrorResponse.of("HANDLER_EXCEPTION", ex.getMessage(),LocalDateTime.now()));
 //    }
 
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitException(RateLimitException ex){
+
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("X-RateLimit-Remaining","0")
+                .header("Retry-after",String.valueOf(ex.getRetryAfterSeconds()))
+                .header("X-RateLimit-RESET-At",String.valueOf(Instant.now().plusSeconds(ex.getRetryAfterSeconds()).getEpochSecond()))
+                .body(ErrorResponse.of("RATE_LIMIT_EXCEEDED", ex.getMessage(), LocalDateTime.now()));
+    }
     }

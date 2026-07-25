@@ -44,6 +44,7 @@ public class RedisApiKeyCache implements ApiKeyCache{
         } catch (Exception e)
         {
             log.warn("Api Key cache put fail, keyId: {}",keyId);
+            log.warn("Exception Occurred in saving the key in cache {}",e.getMessage());
 
         }
 

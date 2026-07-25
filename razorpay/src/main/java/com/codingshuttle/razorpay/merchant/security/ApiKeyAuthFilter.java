@@ -1,5 +1,8 @@
 package com.codingshuttle.razorpay.merchant.security;
 
+import com.codingshuttle.razorpay.common.exception.RateLimitException;
+import com.codingshuttle.razorpay.common.ratelimit.RateLimitResult;
+import com.codingshuttle.razorpay.common.ratelimit.RateLimiter;
 import com.codingshuttle.razorpay.merchant.cache.ApiKeyCache;
 import com.codingshuttle.razorpay.merchant.cache.ApiKeyCacheEntry;
 import com.codingshuttle.razorpay.merchant.entity.ApiKey;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,6 +41,10 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final MerchantContext merchantContext;
     private final HandlerExceptionResolver handlerExceptionResolver; // To propagate any exception from filters to MVC layer which then can be handled by global exception handler
     private final ApiKeyCache apiKeyCache;
+    private final RateLimiter rateLimiter;
+
+    @Value("${app.rate-limit.use-case.api-key.req-per-min:60}")
+    private Integer requestsPerMinute;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("Incoming request {}", request.getRequestURI());
@@ -44,6 +52,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             String header = request.getHeader("Authorization");
             if (header == null || !header.startsWith(BASIC_PREFIX)) {
                 filterChain.doFilter(request, response);
+                return;
             }
 // Authorization Header: Basic key id:key secret ex: Basic rzp_production_WNJisyghFTWeMHOVlMC3SrhRLS580-0v:oJqWGZl2dJnvwjzcYzAdcjox1sUzOxg81R08VQ-hKr7xLFZJnjL_6w
             String[] credentials = decode(header);
@@ -60,6 +69,19 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             if (apiKeyEntry==null || !apiKeyEntry.enabled() || !verifySecret(rawSecret, apiKeyEntry)) {
                 throw new BadRequestException("Invalid or missing API key");
             }
+            RateLimitResult rateLimitResult;
+            try {
+                rateLimitResult    = rateLimiter.check("apikey:" + keyId, requestsPerMinute, 60);
+
+            }catch (Exception e){
+                log.warn("Rate limiter check failed, allowing request through. keyId: {}", keyId, e);
+                rateLimitResult = RateLimitResult.allowed(requestsPerMinute); // fail-open
+            }
+            if(!rateLimitResult.isAllowed()){
+                throw new RateLimitException("Too many requests", rateLimitResult.retryAfterSeconds());
+            }
+            response.setHeader("X-RateLimit-Limit",String.valueOf(requestsPerMinute));
+            response.setHeader("X-RateLimit-Remaining",String.valueOf(rateLimitResult.remaining()));
             Authentication authentication = new UsernamePasswordAuthenticationToken(keyId, null, List.of(new SimpleGrantedAuthority("API_KEY_ROLE")));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             merchantContext.setKeyId(apiKeyEntry.keyId());
