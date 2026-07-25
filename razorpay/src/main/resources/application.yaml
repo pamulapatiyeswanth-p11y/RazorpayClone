@@ -40,3 +40,10 @@ payment:
         success-rate: 80
 jwt:
   secret-key: dont-use-in-prod-39weiwi29492iwekmwi3944
+
+app:
+  rate-limit:
+    method: fixed
+    use-case:
+      api-key:
+        req-per-min: 2
