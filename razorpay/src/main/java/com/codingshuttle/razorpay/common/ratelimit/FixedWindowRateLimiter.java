@@ -1,5 +1,11 @@
 package com.codingshuttle.razorpay.common.ratelimit;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 /**
  * FIXED WINDOW RATE LIMITER
  *
@@ -40,15 +46,7 @@ package com.codingshuttle.razorpay.common.ratelimit;
  */
 
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor

@@ -74,7 +74,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                 rateLimitResult    = rateLimiter.check("apikey:" + keyId, requestsPerMinute, 60);
 
             }catch (Exception e){
-                log.warn("Rate limiter check failed, allowing request through. keyId: {}", keyId, e);
+                log.warn("Rate limiter check failed, allowing request through. keyId: {} ,{}", keyId, e.getMessage());
                 rateLimitResult = RateLimitResult.allowed(requestsPerMinute); // fail-open
             }
             if(!rateLimitResult.isAllowed()){
