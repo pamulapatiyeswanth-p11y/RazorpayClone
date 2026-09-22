@@ -69,4 +69,19 @@ public class GlobalExceptionHandler {
                 .header("X-RateLimit-RESET-At",String.valueOf(Instant.now().plusSeconds(ex.getRetryAfterSeconds()).getEpochSecond()))
                 .body(ErrorResponse.of("RATE_LIMIT_EXCEEDED", ex.getMessage(), LocalDateTime.now()));
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(ex.errorCode, ex.getMessage(), LocalDateTime.now()));
+    }
+    @ExceptionHandler(IdempotencyConflictException.class)
+    public ResponseEntity<ErrorResponse> handleIdempotencyConflict(
+            IdempotencyConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(ex.errorCode, ex.getMessage(), LocalDateTime.now()));
+    }
+
     }

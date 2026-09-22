@@ -45,9 +45,10 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     @Value("${app.rate-limit.use-case.api-key.req-per-min:60}")
     private Integer requestsPerMinute;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("Incoming request {}", request.getRequestURI());
+        log.info("Incoming request to API Key Auth Filter{}", request.getRequestURI());
         try {
             String header = request.getHeader("Authorization");
             if (header == null || !header.startsWith(BASIC_PREFIX)) {

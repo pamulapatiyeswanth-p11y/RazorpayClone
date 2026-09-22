@@ -18,6 +18,7 @@ import com.codingshuttle.razorpay.payment.service.PaymentService;
 import com.codingshuttle.razorpay.payment.statemachine.PaymentTransitionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -69,8 +70,7 @@ public class PaymentServiceImplementation implements PaymentService {
                 order.getAmount(),
                 request.paymentMethod(),
                 request.methodDetails());
-
-       PaymentResult result = paymentGatewayRouter.initiate(paymentRequest);
+            PaymentResult result = paymentGatewayRouter.initiate(paymentRequest);
         switch (result) {
             //Payment would be updated to Authorized when bank returns success in response
             case PaymentResult.Pending pending ->

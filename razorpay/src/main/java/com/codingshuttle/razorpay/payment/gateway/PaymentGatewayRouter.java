@@ -13,7 +13,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PaymentGatewayRouter {
     private final Map<PaymentMethod,PaymentAdapter> paymentAdapters;
-    public PaymentResult initiate(PaymentRequest request){
+    public PaymentResult initiate(PaymentRequest request) {
         PaymentAdapter paymentAdapter = paymentAdapters.get(request.method());
         if(paymentAdapter == null){
             throw new IllegalArgumentException("No payment adapter registered for the payment method: "

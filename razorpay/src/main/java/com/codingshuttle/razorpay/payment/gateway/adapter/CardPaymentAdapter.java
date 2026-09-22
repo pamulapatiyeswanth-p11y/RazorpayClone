@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.payment.gateway.adapter;
 
+import com.codingshuttle.razorpay.common.exception.BadRequestException;
 import com.codingshuttle.razorpay.payment.gateway.PaymentAdapter;
 import com.codingshuttle.razorpay.payment.gateway.dto.PaymentRequest;
 import com.codingshuttle.razorpay.payment.gateway.dto.PaymentResult;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -20,7 +22,11 @@ public class CardPaymentAdapter implements PaymentAdapter {
 
     @Override
     public PaymentResult initiate(PaymentRequest request) {
-        String token = request.methodDetails().get("token").toString();
+        Object tokenObject = request.methodDetails().get("token");
+        if(tokenObject==null){
+            throw new BadRequestException("MISSING_TOKEN","Card token is required");
+        }
+        String token = tokenObject.toString();
         PaymentProcessorResponse response =
                 vaultService.charge(token, request.paymentId(), request.amount(), request.methodDetails());
         return switch (response) {
